@@ -1,11 +1,16 @@
-resource "aws_vpc" "production" {
+resource "aws_vpc" "prod-vpc" {
     cidr_block = "10.0.0.0/16"
     tags = {
         Name = "production"
     }
 }
-resource "aws_route_table" "prod_route" {
-    vpc_id = aws_vpc.production.id 
+
+resource "aws_internet_gateway" "gw" {
+    vpc_id = aws_vpc.prod-vpc.id
+}
+
+resource "aws_route_table" "prod_route_table" {
+    vpc_id = aws_vpc.prod-vpc.id 
 
     route {
         cidr_block = "0.0.0.0/0"
@@ -23,15 +28,15 @@ resource "aws_route_table" "prod_route" {
 
 resource "aws_security_group" "allow_web" {
     name = "allow_web"
-    description = "allwo web inbound traffic" 
-    vpc_id = aws_vpc.production.id
+    description = "allow web inbound traffic" 
+    vpc_id = aws_vpc.prod-vpc.id
 
     ingress {
         description = "HTTPS"
         from_port = 443 
         to_port = 443 
         protocol = "tcp"
-        cidr_blocks = [aws_vpc.production.cidr_block]
+        cidr_blocks = ["0.0.0.0/0"]
     }
 
     ingress {
@@ -39,7 +44,7 @@ resource "aws_security_group" "allow_web" {
         from_port = 80 
         to_port = 80 
         protocol = "tcp"
-        cidr_blocks = [aws_vpc.production.cidr_block]
+        cidr_blocks = ["0.0.0.0/0"]
     }
 
     ingress {
@@ -47,7 +52,7 @@ resource "aws_security_group" "allow_web" {
         from_port = 22 
         to_port = 22 
         protocol = "tcp"
-        cidr_blocks = [aws_vpc.production.cidr_block]
+        cidr_blocks = ["0.0.0.0/0"]
     }
 
     egress {
