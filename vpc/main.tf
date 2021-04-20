@@ -5,7 +5,7 @@ resource "aws_vpc" "prod-vpc" {
     }
 }
 
-resource "aws_internet_gateway" "gw" {
+resource "aws_internet_gateway" "igw" {
     vpc_id = aws_vpc.prod-vpc.id
 }
 
@@ -14,11 +14,11 @@ resource "aws_route_table" "prod_route_table" {
 
     route {
         cidr_block = "0.0.0.0/0"
-        gateway_id = aws_internet_gateway.gw.id
+        gateway_id = aws_internet_gateway.igw.id
     }
     route {
         ipv6_cidr_block = "::/0"
-        gateway_id = aws_internet_gateway.gw.id
+        gateway_id = aws_internet_gateway.igw.id
     }
 
     tags = {
@@ -65,4 +65,25 @@ resource "aws_security_group" "allow_web" {
     tags = {
         Name = "allow_web_traffic" 
     }
+}
+
+resource "aws_security_group" "MySQL-SG" {
+  description = "MySQL Access ONLY from public instances"
+  name = "mysql-sg"
+  vpc_id = aws_vpc.prod-vpc.id
+  ingress {
+    description = "MySQL Access"
+    from_port   = 3306
+    to_port     = 3306
+    protocol    = "tcp"
+    security_groups = [aws_security_group.allow_web.id]
+  }
+
+  egress {
+    description = "output from MySQL"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 }

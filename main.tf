@@ -22,6 +22,7 @@ module "ec2" {
     net_id = module.subnets.net_id
     ami_id = "ami-08bac620dc84221eb"
     instance_type = "t2.micro"
+    #security_groups = aws_security_group.allow_web.security_id
     av_zone = "eu-west-1a"
     key_name = "ssh-aws-2"
     user_data = <<-EOF

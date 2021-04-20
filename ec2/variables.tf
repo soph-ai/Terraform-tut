@@ -7,6 +7,9 @@ variable "ami_id" {
 variable "instance_type" {
 }
 
+#variable "instance_type_2" {
+#}
+
 variable "av_zone" {
 }
 
